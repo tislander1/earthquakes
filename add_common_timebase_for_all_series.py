@@ -16,11 +16,11 @@ files_containing_series_data = {}
 ix = 0
 for filename in all_filenames:
     
-    if ix % 50 == 0:
+    if ix % 100 == 0:
         if ix > 0:
-            out_file = 'earthquakes_'+ str(ix) + '.csv'
             master_df.to_csv(out_file)
             sleep(3)
+        out_file = 'earthquakes_'+ str(ix) + '.csv'
         # create a master df to hold next 400 columns (otherwise it gets too large to use)
         # Create the 'days' column
         days = pd.Series(range(9400), name='days')
@@ -34,10 +34,11 @@ for filename in all_filenames:
     print(ix, filename)
     df = pd.read_csv(input_dir + '/' +filename)
     station = filename.replace('.series.csv', '')
-    files_containing_series_data['station'] = out_file
+    files_containing_series_data[station] = out_file
 
     df['date'] = pd.to_datetime(dict(year=df.Time_Year, month=df.Time_MM, day=df.Time_DD))
     df['days_int'] = (df['date'] - reference_date).dt.days
+    df = df.drop_duplicates(subset='days_int', keep='first')
 
     # Create a new DataFrame with the necessary columns from `df`
     # and rename them to avoid conflicts during the merge.
@@ -52,9 +53,9 @@ for filename in all_filenames:
     # merge columns into master_df, using 'days_int' as the key.
     
     master_df = pd.merge(master_df, df_to_merge, on='days_int', how='left')
-    x = 2
+    print('df_to_merge_shape', df_to_merge.shape, 'master_df_shape', master_df.shape)
 
-master_df.to_csv('df'+ str(ix) + '.csv')
+master_df.to_csv(out_file)
 
 with open('info.json', 'w') as f:
     json.dump(files_containing_series_data, f)
