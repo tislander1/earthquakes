@@ -47,7 +47,7 @@ if update_csv:
         df.loc[index, 'Long (deg)'] = latlongheight['long']
         df.loc[index, 'Lat (deg)'] = latlongheight['lat']
         df.loc[index, 'Elev (ft) IGS14'] = latlongheight['elev_IGS14_ft']
-    df.to_csv('Station info 2.csv')
+    df.to_csv('Station info 2.csv', index=False)
 
 fig = px.scatter_3d(df, x='X pos (mm)', y='Y pos (mm)', z='Z pos (mm)', hover_data=['Station', 'Lat (deg)', 'Long (deg)'])
 fig.show()
